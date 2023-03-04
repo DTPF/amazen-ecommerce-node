@@ -19,66 +19,59 @@ function signUp(req, res) {
   user.createdAt = Date.now();
   user.updatedAt = Date.now();
 
+  // Name and lastname
+  if (!name) {
+    return res.status(400).send({ status: 400, message: userMessage.nameEmpty });
+  }
+
   // Email requirements
   if (!email) {
-    res.status(400).send({ status: 400, message: userMessage.emailEmpty });
-    return;
+    return res.status(400).send({ status: 400, message: userMessage.emailEmpty });
   }
 
   if (!emailValidation) {
-    res.status(400).send({ status: 400, message: userMessage.emailNotValid });
-    return;
+    return res.status(400).send({ status: 400, message: userMessage.emailNotValid });
   }
 
   // Password requirements
   if (!password) {
-    res.status(400).send({ status: 400, message: userMessage.passwordEmpty });
-    return;
+    return res.status(400).send({ status: 400, message: userMessage.passwordEmpty });
   }
   if (password.length < 6) {
-    res.status(400).send({ status: 400, message: userMessage.passwordMinLength });
-    return;
+    return res.status(400).send({ status: 400, message: userMessage.passwordMinLength });
   }
   if (!repeatPassword) {
-    res.status(400).send({ status: 400, message: userMessage.repeatPasswordEmpty });
-    return;
+    return res.status(400).send({ status: 400, message: userMessage.repeatPasswordEmpty });
   }
 
   if (password !== repeatPassword) {
-    res.status(400).send({ status: 400, message: userMessage.passwordNotMatch });
-    return;
+    return res.status(400).send({ status: 400, message: userMessage.passwordNotMatch });
   }
 
   bcrypt.genSalt(SALTROUNDS, function (err, salt) {
     if (err) {
-      res.status(500).send({ status: 500, message: userMessage.bcryptSalt });
-      return;
+      return res.status(500).send({ status: 500, message: userMessage.bcryptSalt });
     }
     bcrypt.hash(password, salt, function (err, hash) {
       if (err) {
-        res.status(501).send({ status: 501, message: userMessage.passwordEncryptFailed });
-        return;
+        return res.status(501).send({ status: 501, message: userMessage.passwordEncryptFailed });
       } else {
         user.password = hash;
         user.save()
           .then(userStored => {
             if (!userStored) {
-              res.status(400).send({ status: 400, message: userMessage.serverError });
-              return;
+              return res.status(400).send({ status: 400, message: userMessage.serverError });
             }
-            res.status(200).send({
+            return res.status(200).send({
               status: 200,
               message: userMessage.userCreated,
               user: userStored,
             });
           })
           .catch((err) => {
-            if (err.code === 11000) {
-              res.status(400).send({ status: 400, message: userMessage.userExists });
-            } else {
-              res.status(502).send({ status: 502, message: err.errors.name.message });
+            if (err) {
+              return res.status(400).send({ status: 400, message: userMessage.userExists });
             }
-            return;
           });
       }
     });
@@ -91,28 +84,23 @@ function signIn(req, res) {
   const password = params.password;
 
   if (!email) {
-    res.status(400).send({ status: 400, message: userMessage.emailEmpty });
-    return;
+    return res.status(400).send({ status: 400, message: userMessage.emailEmpty });
   }
   if (!password) {
-    res.status(400).send({ status: 400, message: userMessage.passwordEmpty });
-    return;
+    return res.status(400).send({ status: 400, message: userMessage.passwordEmpty });
   }
 
   User.findOne({ email })
     .then(userStored => {
       if (!userStored) {
-        res.status(400).send({ status: 400, message: userMessage.userNotFound });
-        return;
+        return res.status(400).send({ status: 400, message: userMessage.userNotFound });
       }
       bcrypt.compare(password, userStored.password, (err, check) => {
         if (err) {
-          res.status(500).send({ status: 500, message: userMessage.serverError });
-          return;
+          return res.status(500).send({ status: 500, message: userMessage.serverError });
         }
         if (!check) {
-          res.status(400).send({ status: 400, message: userMessage.passwordNotValid });
-          return;
+          return res.status(400).send({ status: 400, message: userMessage.passwordNotValid });
         }
         res.status(200).send({
           status: 200,
@@ -123,8 +111,7 @@ function signIn(req, res) {
     })
     .catch(err => {
       if (err) {
-        res.status(501).send({ status: 501, message: userMessage.serverError });
-        return;
+        return res.status(501).send({ status: 501, message: userMessage.serverError });
       }
     })
 }
@@ -133,14 +120,14 @@ function getUsers(req, res) {
   User.find()
     .then((users) => {
       if (!users) {
-        res.status(404).send({ status: 404, message: userMessage.userNotFound });
+        return res.status(404).send({ status: 404, message: userMessage.userNotFound });
       } else {
-        res.status(200).send({ status: 200, users: users });
+        return res.status(200).send({ status: 200, users: users });
       }
     })
     .catch(err => {
       if (err) {
-        res.status(500).send({ status: 500, message: userMessage.serverError });
+        return res.status(500).send({ status: 500, message: userMessage.serverError });
       }
     });
 }
@@ -152,9 +139,8 @@ function uploadAvatar(req, res) {
   User.findById({ _id: params.id })
     .then(userData => {
       if (!userData) {
-        res.status(404).send({ status: 404, message: userMessage.userNotFound });
         path && fs.unlinkSync(path);
-        return;
+        return res.status(404).send({ status: 404, message: userMessage.userNotFound });
       }
 
       let user = userData;
@@ -169,9 +155,8 @@ function uploadAvatar(req, res) {
         let fileExt = extSplit[1] && extSplit[1].toLowerCase();
 
         if (fileExt !== "png" && fileExt !== "jpg" && fileExt !== "jpeg") {
-          res.status(400).send({ status: 400, message: userMessage.extensionNotValid });
           path && fs.unlinkSync(path);
-          return;
+          return res.status(400).send({ status: 400, message: userMessage.extensionNotValid });
         }
 
         user.avatar = fileName;
@@ -180,30 +165,27 @@ function uploadAvatar(req, res) {
         User.findByIdAndUpdate({ _id: params.id }, user)
           .then(userResult => {
             if (!userResult) {
-              res.status(404).send({ status: 404, message: userMessage.userNotFound });
               path && fs.unlinkSync(path);
-              return;
+              return res.status(404).send({ status: 404, message: userMessage.userNotFound });
             }
             (avatarNameOld !== undefined) && fs.unlinkSync(filePathOld);
-            res.status(200).send({ status: 200, avatarName: fileName });
+            return res.status(200).send({ status: 200, avatarName: fileName });
           })
           .catch(err => {
             if (err) {
-              res.status(500).send({ status: 500, message: err });
               path && fs.unlinkSync(path);
-              return;
+              return res.status(500).send({ status: 500, message: err });
             }
           })
       } else {
-        res.status(404).send({ status: 404, message: userMessage.imageEmpty });
         path && fs.unlinkSync(path);
+        return res.status(404).send({ status: 404, message: userMessage.imageEmpty });
       }
     })
     .catch(err => {
       if (err) {
-        res.status(500).send({ status: 500, message: userMessage.serverError });
         path && fs.unlinkSync(path);
-        return;
+        return res.status(500).send({ status: 500, message: userMessage.serverError });
       }
     })
 }
@@ -214,9 +196,9 @@ function getAvatar(req, res) {
 
   fs.exists(filePath, (exists) => {
     if (!exists) {
-      res.status(404).send({ status: 404, message: userMessage.avatarNotExist });
+      return res.status(404).send({ status: 404, message: userMessage.avatarNotExist });
     } else {
-      res.sendFile(path.resolve(filePath));
+      return res.sendFile(path.resolve(filePath));
     }
   });
 }
@@ -230,7 +212,7 @@ function updateUser(req, res) {
   if (userData.password) {
     bcrypt.hash(userData.password, null, null, (err, hash) => {
       if (err) {
-        res.status(500).send({ status: 500, message: userMessage.passwordEncryptFailed });
+        return res.status(500).send({ status: 500, message: userMessage.passwordEncryptFailed });
       } else {
         userData.password = hash;
       }
@@ -240,14 +222,14 @@ function updateUser(req, res) {
   User.findByIdAndUpdate({ _id: params.id }, userData)
     .then(userUpdate => {
       if (!userUpdate) {
-        res.status(404).send({ message: userMessage.userNotFound, status: 404 });
+        return res.status(404).send({ message: userMessage.userNotFound, status: 404 });
       } else {
-        res.status(200).send({ status: 200, message: userMessage.userUpdateSuccess, user: userData });
+        return res.status(200).send({ status: 200, message: userMessage.userUpdateSuccess, user: userData });
       }
     })
     .catch(err => {
       if (err) {
-        res.status(500).send({ status: 500, message: userMessage.serverError });
+        return res.status(500).send({ status: 500, message: userMessage.serverError });
       }
     })
 }
@@ -258,17 +240,15 @@ function deleteUser(req, res) {
   User.findById({ _id: id })
     .then(user => {
       if (!user) {
-        res.status(400).send({ status: 400, message: userMessage.userNotFound });
+        return res.status(400).send({ status: 400, message: userMessage.userNotFound });
       } else {
         if (user.role === 'admin') {
-          res.status(400).send({ status: 400, message: userMessage.adminReject });
-          return
+          return res.status(400).send({ status: 400, message: userMessage.adminReject });
         }
         User.findByIdAndRemove(id)
           .then(userDelete => {
             if (!userDelete) {
-              res.status(404).send({ status: 404, message: userMessage.userNotFound });
-              return;
+              return res.status(404).send({ status: 404, message: userMessage.userNotFound });
             }
 
             let avatarPath = userDelete.avatar;
@@ -276,19 +256,18 @@ function deleteUser(req, res) {
               let filePathToDelete = "./uploads/avatar/" + avatarPath;
               fs.unlinkSync(filePathToDelete);
             }
-            res.status(200).send({ status: 200, message: userMessage.deleteSuccess });
-            return
+            return res.status(200).send({ status: 200, message: userMessage.deleteSuccess });
           })
           .catch(err => {
             if (err) {
-              res.status(500).send({ status: 500, message: userMessage.serverError });
+              return res.status(500).send({ status: 500, message: userMessage.serverError });
             }
           });
       }
     })
     .catch(err => {
       if (err) {
-        res.status(500).send({ status: 500, message: err });
+        return res.status(500).send({ status: 500, message: err });
       }
     })
 }
@@ -300,18 +279,18 @@ function updateRole(req, res) {
   User.findByIdAndUpdate(id, { role })
     .then(userStored => {
       if (!userStored) {
-        res.status(404).send({ status: 404, message: userMessage.userNotFound });
+        return res.status(404).send({ status: 404, message: userMessage.userNotFound });
       } else {
         if (!role) {
-          res.status(404).send({ status: 404, message: userMessage.roleEmpty });
+          return res.status(404).send({ status: 404, message: userMessage.roleEmpty });
         } else {
-          res.status(200).send({ status: 200, message: userMessage.roleSuccess + role });
+          return res.status(200).send({ status: 200, message: userMessage.roleSuccess + role });
         }
       }
     })
     .catch(err => {
       if (err) {
-        res.status(500).send({ status: 500, message: userMessage.serverError });
+        return res.status(500).send({ status: 500, message: userMessage.serverError });
       }
     })
 }
