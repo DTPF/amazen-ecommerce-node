@@ -2,13 +2,9 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 const UserSchema = Schema({
-  name: {
-    type: String,
-    required: [true, 'Nombre obligatorio'],
-    minLength: [3, 'Nombre con un mínimo de 3 carácteres']
-  },
-  lastname: { type: String, required: true },
-  email: { type: String, unique: true, required: true },
+  name: { type: String, required: true },
+  lastname: String,
+  email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
   role: String,
   avatar: String,
