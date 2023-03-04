@@ -1,5 +1,6 @@
 const userMessage = {
   // Sign
+  nameEmpty: 'El nombre es obligatorio',
   emailEmpty: 'El email es obligatorio',
   emailNotValid: 'Email incorrecto',
   passwordEmpty: 'Introduce la contraseña',
@@ -30,7 +31,7 @@ const userMessage = {
   
   // Shared
   serverError: 'Error del servidor',
-  userNotFound: 'No se ha encontrado ningún usuario',
+  userNotFound: 'No se ha encontrado al usuario',
   userNotFoundServer: 'No se ha encontrado ningún usuario el el servidor',
 }
 
