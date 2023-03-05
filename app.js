@@ -1,17 +1,14 @@
 const express = require("express");
 const bodyParser = require("body-parser");
-const path = require("path");
-
 const app = express();
 const { API_VERSION } = require("./config");
-
 const authRoutes = require("./routers/auth");
 const userRoutes = require("./routers/user");
 const cartRoutes = require("./routers/cart");
+const productRoutes = require("./routers/product");
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
-
 app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "*");
   res.header(
@@ -23,9 +20,10 @@ app.use((req, res, next) => {
   next();
 });
 
-// Router Basic
+// Router
 app.use(`/api/${API_VERSION}`, authRoutes);
 app.use(`/api/${API_VERSION}`, userRoutes);
 app.use(`/api/${API_VERSION}`, cartRoutes);
+app.use(`/api/${API_VERSION}`, productRoutes);
 
 module.exports = app;
