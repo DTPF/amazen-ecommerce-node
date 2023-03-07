@@ -1,5 +1,5 @@
 const Cart = require("../models/Cart");
-const { cartMessage } = require("../responses/cart");
+const { cartMessage } = require("../responsesMessages/cart.messages");
 
 function addToCart(req, res) {
   const cart = new Cart();

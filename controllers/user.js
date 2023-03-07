@@ -4,7 +4,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("../services/jwt");
 const User = require("../models/User");
 const { SALTROUNDS } = require("../env");
-const { userMessage } = require("../responses/user");
+const { userMessage } = require("../responsesMessages/user.messages");
 
 function signUp(req, res) {
   const user = new User();

@@ -2,7 +2,7 @@ const fs = require("fs");
 const path = require("path");
 const moment = require("moment");
 const Product = require("../models/Product");
-const { productMessage } = require("../responses/product");
+const { productMessage } = require("../responsesMessages/product.messages");
 
 function addProduct(req, res) {
   const { title, info, sizeAndPrice } = req.body;
