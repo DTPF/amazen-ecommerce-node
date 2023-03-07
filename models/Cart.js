@@ -5,6 +5,7 @@ const CartSchema = Schema({
   userId: String,
   productId: String,
   quantity: Number,
+  price: Number
 });
 
 module.exports = mongoose.model("Cart", CartSchema);
