@@ -3,7 +3,7 @@ const { cartMessage } = require("../responsesMessages/cart.messages");
 
 function addToCart(req, res) {
   const cart = new Cart();
-  const { userId, productId, price } = req.body;
+  const { userId, productId, price, shippingDate } = req.body;
 
   Cart.find({ userId: userId, productId: productId })
     .then(cartItem => {
@@ -30,6 +30,7 @@ function addToCart(req, res) {
         cart.productId = productId;
         cart.quantity = 1;
         cart.price = price;
+        cart.shippingDate = shippingDate;
         cart.save()
           .then(cartStored => {
             if (!cartStored) {
