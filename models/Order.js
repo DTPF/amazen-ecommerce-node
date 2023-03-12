@@ -12,6 +12,7 @@ const OrderSchema = Schema({
   totalAmount: Number,  
   status: String,
   shippingDate: Date,
+  discount: {},
   createdAt: Date,
   updatedAt: Date
 });

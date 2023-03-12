@@ -4,19 +4,11 @@ const moment = require("moment");
 
 async function newOrder(req, res) {
   const cart = new Order();
-  const { userId, products, creditCardNumber } = req.body;
+  const { userId, products, creditCardNumber, discount } = req.body;
 
   if (!creditCardNumber) {
     return res.status(404).send({ status: 404, message: 'Introduce la tarjeta de crédito' });
   }
-
-  cart.userId = userId;
-  cart.products = products;
-  cart.creditCardNumber = creditCardNumber;
-  cart.status = 'in progress';
-  cart.createdAt = new Date();
-  cart.updatedAt = new Date();
-  
   let totalAmount = 0;
   let shippingDate = 0;
   products.forEach(product => {
@@ -25,9 +17,23 @@ async function newOrder(req, res) {
       shippingDate = product.shippingDate;
     }
   });
-
+  
+  cart.userId = userId;
+  cart.products = products;
+  cart.creditCardNumber = creditCardNumber;
+  cart.status = 'in progress';
+  cart.createdAt = new Date();
+  cart.updatedAt = new Date();
+  cart.discount = discount;  
   cart.totalAmount = totalAmount;
-  cart.shippingDate = moment().add(shippingDate, 'days');
+
+  if (discount) {
+    cart.totalAmount = (totalAmount - totalAmount * (discount.percent / 100));
+  }
+  
+  cart.discount = discount; 
+  const shipDate = moment().add(shippingDate, 'days');
+  cart.shippingDate = shipDate;
 
   cart.save()
     .then(order => {
@@ -37,7 +43,7 @@ async function newOrder(req, res) {
         products.forEach(product => {
           Cart.findByIdAndDelete(product._id);
         })
-        return res.status(200).send({ status: 200, message: 'Pedido realizado correctamente', order: order });
+        return res.status(200).send({ status: 200, message: 'Pedido realizado correctamente', order: cart });
       }
     })
     .catch(err => {
