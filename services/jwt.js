@@ -9,6 +9,8 @@ exports.createAccessToken = function (user) {
     lastname: user.lastname,
     email: user.email,
     role: user.role,
+    address: user.address,
+    phoneNumber: user.phoneNumber,
     createToken: moment().unix(),
     exp: moment().add(3, "hours").unix()
   };
