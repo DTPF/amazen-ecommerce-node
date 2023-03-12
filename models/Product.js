@@ -14,7 +14,14 @@ const ProductSchema = Schema({
   stock: Number,
   stars: Number,
   images: [String],
-  shippingDate: Date,
+  defaultImage: Number,
+  waitShippingTime: Number,
+  category: String,
+  discount: {
+    shop: String,
+    percent: Number,
+    discountName: String
+  },
   createdAt: Date,
   updatedAt: Date
 });
