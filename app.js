@@ -1,4 +1,5 @@
 const express = require("express");
+const path = require('path');
 const bodyParser = require("body-parser");
 const app = express();
 const { API_VERSION } = require("./config");
@@ -27,5 +28,9 @@ app.use(`/api/${API_VERSION}`, userRoutes);
 app.use(`/api/${API_VERSION}`, cartRoutes);
 app.use(`/api/${API_VERSION}`, productRoutes);
 app.use(`/api/${API_VERSION}`, orderRoutes);
+// app.use('/', express.static('client', {redirect: false}));
+// app.get('*', function(req, res, next){
+//   res.sendFile(path.resolve('client/index.html'));
+// });
 
 module.exports = app;
