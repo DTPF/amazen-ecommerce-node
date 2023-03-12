@@ -8,6 +8,14 @@ const UserSchema = Schema({
   password: { type: String, required: true },
   role: String,
   avatar: String,
+  address: {
+    street: String,
+    city: String,
+    country: String,
+    province: String,
+    postalCode: Number
+  },
+  phoneNumber: Number,
   createdAt: Date,
   updatedAt: Date
 });
