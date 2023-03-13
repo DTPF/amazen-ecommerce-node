@@ -8,7 +8,7 @@ const { userMessage } = require("../responsesMessages/user.messages");
 
 function signUp(req, res) {
   const user = new User();
-  const { name, lastname, email, password, repeatPassword } = req.body;
+  const { name, lastname, email, address, password, repeatPassword } = req.body;
   const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g;
   const emailValidation = emailRegex.test(email);
 
@@ -16,6 +16,11 @@ function signUp(req, res) {
   user.lastname = lastname;
   user.email = email && email.toLowerCase();
   user.role = "user";
+  user.address.street = address.street;
+  user.address.city = address.city;
+  user.address.country = address.country;
+  user.address.province = address.province;
+  user.address.postalCode = address.postalCode;
   user.createdAt = Date.now();
   user.updatedAt = Date.now();
 
