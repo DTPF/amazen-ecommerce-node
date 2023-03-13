@@ -54,39 +54,20 @@ function updateProduct(req, res) {
 }
 
 async function getProducts(req, res) {
-  const { category } = req.params;
-
-  if (category !== 'all') {
-    Product.find({ category: category })
-      .sort({ updatedAt: "desc" })
-      .then((products) => {
-        if (!products) {
-          return res.status(404).send({ status: 404, message: productMessage.productNotFound });
-        } else {
-          return res.status(200).send({ status: 200, products: products });
-        }
-      })
-      .catch(err => {
-        if (err) {
-          return res.status(500).send({ status: 500, message: productMessage.serverError });
-        }
-      });
-  } else {
-    Product.find()
-      .sort({ updatedAt: "desc" })
-      .then((products) => {
-        if (!products) {
-          return res.status(404).send({ status: 404, message: productMessage.productNotFound });
-        } else {
-          return res.status(200).send({ status: 200, products: products });
-        }
-      })
-      .catch(err => {
-        if (err) {
-          return res.status(500).send({ status: 500, message: productMessage.serverError });
-        }
-      });
-  }
+  Product.find()
+  .sort({ updatedAt: "desc" })
+  .then((products) => {
+    if (!products) {
+      return res.status(404).send({ status: 404, message: productMessage.productNotFound });
+    } else {
+      return res.status(200).send({ status: 200, products: products });
+    }
+  })
+  .catch(err => {
+    if (err) {
+      return res.status(500).send({ status: 500, message: productMessage.serverError });
+    }
+  });
 }
 
 function getProductById(req, res) {
