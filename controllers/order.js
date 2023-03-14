@@ -9,12 +9,14 @@ async function newOrder(req, res) {
   if (!creditCardNumber) {
     return res.status(404).send({ status: 404, message: 'Introduce la tarjeta de crédito' });
   }
+
   let totalAmount = 0;
-  let shippingDate = 0;
+  let shippingInDays = 0;
+  
   products.forEach(product => {
     totalAmount += (product.price * product.quantity);
-    if (product.shippingDate > shippingDate) {
-      shippingDate = product.shippingDate;
+    if (product.shippingDate > shippingInDays) {
+      shippingInDays = product.shippingDate;
     }
   });
   
@@ -24,26 +26,27 @@ async function newOrder(req, res) {
   cart.status = 'in progress';
   cart.createdAt = new Date();
   cart.updatedAt = new Date();
-  cart.discount = discount;  
+  cart.discount = discount;
   cart.totalAmount = totalAmount;
+  cart.discount = discount;
+  cart.shippingDate = moment().add(shippingInDays, 'days');
 
   if (discount) {
     cart.totalAmount = (totalAmount - totalAmount * (discount.percent / 100));
   }
-  
-  cart.discount = discount; 
-  const shipDate = moment().add(shippingDate, 'days');
-  cart.shippingDate = shipDate;
 
   cart.save()
     .then(order => {
       if (!order) {
         return res.status(404).send({ status: 404, message: 'No se ha podido realizar el pedido' });
       } else {
-        products.forEach(product => {
-          Cart.findByIdAndDelete(product._id);
+        products.forEach(cart => {
+          Cart.findByIdAndDelete(cart._id)
+            .then(res => {
+              res.status(200);
+            });
         })
-        return res.status(200).send({ status: 200, message: 'Pedido realizado correctamente', order: cart });
+        return res.status(200).send({ status: 200, message: 'Pedido realizado correctamente', order: order });
       }
     })
     .catch(err => {
