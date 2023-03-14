@@ -36,7 +36,7 @@ function addToCart(req, res) {
             if (!cartStored) {
               return res.status(400).send({ status: 400, message: cartMessage.productNotFound });
             }
-            return res.status(200).send({ status: 200, message: cartMessage.addProductSuccess, cartItem: cart })
+            return res.status(200).send({ status: 200, message: cartMessage.addProductSuccess, cartItem: cartStored })
           })
           .catch(err => {
             if (err) {
